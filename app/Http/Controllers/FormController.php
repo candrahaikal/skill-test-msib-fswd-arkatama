@@ -28,42 +28,46 @@ class FormController extends Controller
 
 
     public function store(Request $request)
-    {
-        $input = $request->input('data');
-        $input = strtoupper($input);
+{
+    $input = $request->input('data');
+    $input = strtoupper($input);
 
-        $name = '';
-        $age = '';
-        $city = '';
+    $name = '';
+    $age = '';
+    $city = '';
 
-        // Pisahkan kalimat menjadi kata-kata
-    $inputArray = explode(' ', $input);
+    $inputArray = explode(" ", $input);
 
-    // Flag untuk menandai kapan mulai mengisi variabel usia
-    $isAge = false;
+    $isAgeEnd = false;
 
     foreach ($inputArray as $word) {
-        if (ctype_digit($word) && !$isAge) {
+        if (ctype_alpha($word) && ($word != "THN" || $word != "TAHUN" || $word != "TH") && !(strpos($word, "TH") || strpos($word, "THN") || strpos($word, "TAHUN"))) {
             $name .= $word . " ";
-        } elseif (preg_match('/(\d+)\s*(TAHUN|THN|TH)$/i', $word, $ageString)) {
-            $age .= $ageString[1] . " "; // Menggunakan .= untuk mengakumulasi angka
-            $isAge = true;
+        } elseif (!ctype_alpha($word) || ($word == "THN" || $word == "TAHUN" || $word == "TH") && (strpos($word, "TH") || strpos($word, "THN") || strpos($word, "TAHUN"))) {
+            if (!ctype_alpha($word)){
+                $age = $word;
+            }
+            $isAgeEnd = true;
         } else {
-            $isAge ? $city .= $word . " " : $name .= $word . " ";
+            if ($isAgeEnd){
+                $city .= $word . " ";
+            }
         }
     }
 
+
+    // Hapus spasi 
     $name = trim($name);
-    $age = trim($age);
     $city = trim($city);
 
-        // Simpan data ke database
-        Form::create([
-            'name' => $name,
-            'age' => $age,
-            'city' => $city,
-        ]);
+    // Simpan data
+    Form::create([
+        'name' => $name,
+        'age' => $age,
+        'city' => $city,
+    ]);
 
-        return "Data saved successfully.";
-    }
+    return "Data saved successfully.";
+}
+
 }
