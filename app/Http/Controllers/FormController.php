@@ -41,23 +41,25 @@ class FormController extends Controller
     $isAgeEnd = false;
 
     foreach ($inputArray as $word) {
-        if (ctype_alpha($word) && ($word != "THN" || $word != "TAHUN" || $word != "TH") && !(strpos($word, "TH") || strpos($word, "THN") || strpos($word, "TAHUN"))) {
-            $name .= $word . " ";
-        } elseif (!ctype_alpha($word) || ($word == "THN" || $word == "TAHUN" || $word == "TH") && (strpos($word, "TH") || strpos($word, "THN") || strpos($word, "TAHUN"))) {
-            if (!ctype_alpha($word)){
-                $age = $word;
+        if ($isAgeEnd && !($word == "THN" || $word == "TAHUN" || $word == "TH") && !strpos($word, "TH") && !strpos($word, "THN") && !strpos($word, "TAHUN")) {
+            $city .= $word . " ";
+        }else if (ctype_alpha($word) && !($word == "THN" || $word == "TAHUN" || $word == "TH") && !strpos($word, "TH") && !strpos($word, "THN") && !strpos($word, "TAHUN")) {
+            if (!$isAgeEnd) {
+                $name .= $word . " ";
             }
-            $isAgeEnd = true;
-        } else {
-            if ($isAgeEnd){
-                $city .= $word . " ";
+        } elseif (!ctype_alpha($word) || ($word == "THN" || $word == "TAHUN" || $word == "TH") || strpos($word, "TH") || strpos($word, "THN") || strpos($word, "TAHUN")) {
+            if (!$isAgeEnd) {
+                $age = preg_replace('/[^0-9]/', '', $word);
+                $isAgeEnd = true;
             }
-        }
+        } 
     }
+    
 
 
     // Hapus spasi 
     $name = trim($name);
+    $age = trim($age);
     $city = trim($city);
 
     // Simpan data
